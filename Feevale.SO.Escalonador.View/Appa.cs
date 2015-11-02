@@ -26,7 +26,10 @@ namespace Feevale.SO.Escalonador
 
             timerProcessamento = new Thread(new ThreadStart(CountTime));
             timerProcessamento.IsBackground = true;
+            timerProcessamento.Start();
             Thread.Sleep(tempExecucao);
+            timerProcessamento.Suspend();
+            atualizarTela();
         }
 
         public void atualizarTela()

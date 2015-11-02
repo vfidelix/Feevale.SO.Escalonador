@@ -46,10 +46,11 @@
             this.lblTitulo = new System.Windows.Forms.Label();
             this.btnAdd = new System.Windows.Forms.Button();
             this.dgProcessos = new System.Windows.Forms.DataGridView();
-            this.processoBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.nomeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tempoVidaDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tipoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.processoBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dgProcessos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.processoBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -130,11 +131,10 @@
             // 
             // lblTempoVidaProcessoExecucao
             // 
-            this.lblTempoVidaProcessoExecucao.AutoSize = true;
-            this.lblTempoVidaProcessoExecucao.Location = new System.Drawing.Point(195, 175);
+            this.lblTempoVidaProcessoExecucao.Location = new System.Drawing.Point(191, 175);
             this.lblTempoVidaProcessoExecucao.Name = "lblTempoVidaProcessoExecucao";
-            this.lblTempoVidaProcessoExecucao.Size = new System.Drawing.Size(49, 13);
-            this.lblTempoVidaProcessoExecucao.TabIndex = 9;
+            this.lblTempoVidaProcessoExecucao.Size = new System.Drawing.Size(60, 13);
+            this.lblTempoVidaProcessoExecucao.TabIndex = 15;
             this.lblTempoVidaProcessoExecucao.Text = "00:00:00";
             // 
             // lblTempoVidaProcessoAdd
@@ -206,10 +206,6 @@
             this.dgProcessos.Size = new System.Drawing.Size(340, 138);
             this.dgProcessos.TabIndex = 18;
             // 
-            // processoBindingSource
-            // 
-            this.processoBindingSource.DataSource = typeof(Feevale.SO.Escalonador.Processo);
-            // 
             // nomeDataGridViewTextBoxColumn
             // 
             this.nomeDataGridViewTextBoxColumn.DataPropertyName = "Nome";
@@ -227,6 +223,14 @@
             this.tipoDataGridViewTextBoxColumn.DataPropertyName = "Tipo";
             this.tipoDataGridViewTextBoxColumn.HeaderText = "Tipo";
             this.tipoDataGridViewTextBoxColumn.Name = "tipoDataGridViewTextBoxColumn";
+            // 
+            // processoBindingSource
+            // 
+            this.processoBindingSource.DataSource = typeof(Feevale.SO.Escalonador.Processo);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // App
             // 
@@ -282,6 +286,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn tempoVidaDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn tipoDataGridViewTextBoxColumn;
         private System.Windows.Forms.BindingSource processoBindingSource;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
