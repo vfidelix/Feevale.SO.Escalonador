@@ -46,11 +46,16 @@
             this.lblTitulo = new System.Windows.Forms.Label();
             this.btnAdd = new System.Windows.Forms.Button();
             this.dgProcessos = new System.Windows.Forms.DataGridView();
+            this.TimerEscalonador = new System.Windows.Forms.Timer(this.components);
+            this.TimerCronometro = new System.Windows.Forms.Timer(this.components);
+            this.lblCronometro = new System.Windows.Forms.Label();
+            this.lblTtempoTotal = new System.Windows.Forms.Label();
+            this.lblExecutando = new System.Windows.Forms.Label();
+            this.lblTempoVida = new System.Windows.Forms.Label();
             this.nomeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tempoVidaDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tipoDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.processoBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dgProcessos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.processoBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -74,7 +79,7 @@
             // lblProcessoPorMinuto
             // 
             this.lblProcessoPorMinuto.AutoSize = true;
-            this.lblProcessoPorMinuto.Location = new System.Drawing.Point(163, 60);
+            this.lblProcessoPorMinuto.Location = new System.Drawing.Point(129, 61);
             this.lblProcessoPorMinuto.Name = "lblProcessoPorMinuto";
             this.lblProcessoPorMinuto.Size = new System.Drawing.Size(77, 13);
             this.lblProcessoPorMinuto.TabIndex = 2;
@@ -82,13 +87,15 @@
             // 
             // txtProcessoPorMinuto
             // 
-            this.txtProcessoPorMinuto.Location = new System.Drawing.Point(166, 76);
+            this.txtProcessoPorMinuto.Location = new System.Drawing.Point(132, 77);
             this.txtProcessoPorMinuto.Name = "txtProcessoPorMinuto";
             this.txtProcessoPorMinuto.Size = new System.Drawing.Size(100, 20);
             this.txtProcessoPorMinuto.TabIndex = 3;
+            this.txtProcessoPorMinuto.TextChanged += new System.EventHandler(this.txtProcessoPorMinuto_TextChanged);
             // 
             // cbTipoProcessoAdd
             // 
+            this.cbTipoProcessoAdd.Enabled = false;
             this.cbTipoProcessoAdd.FormattingEnabled = true;
             this.cbTipoProcessoAdd.Location = new System.Drawing.Point(12, 129);
             this.cbTipoProcessoAdd.Name = "cbTipoProcessoAdd";
@@ -115,6 +122,7 @@
             // 
             // txtNomeProcessoAdd
             // 
+            this.txtNomeProcessoAdd.Enabled = false;
             this.txtNomeProcessoAdd.Location = new System.Drawing.Point(129, 129);
             this.txtNomeProcessoAdd.Name = "txtNomeProcessoAdd";
             this.txtNomeProcessoAdd.Size = new System.Drawing.Size(100, 20);
@@ -123,7 +131,7 @@
             // lblProcessoEmExecucao
             // 
             this.lblProcessoEmExecucao.AutoSize = true;
-            this.lblProcessoEmExecucao.Location = new System.Drawing.Point(12, 175);
+            this.lblProcessoEmExecucao.Location = new System.Drawing.Point(85, 175);
             this.lblProcessoEmExecucao.Name = "lblProcessoEmExecucao";
             this.lblProcessoEmExecucao.Size = new System.Drawing.Size(160, 13);
             this.lblProcessoEmExecucao.TabIndex = 8;
@@ -131,7 +139,7 @@
             // 
             // lblTempoVidaProcessoExecucao
             // 
-            this.lblTempoVidaProcessoExecucao.Location = new System.Drawing.Point(191, 175);
+            this.lblTempoVidaProcessoExecucao.Location = new System.Drawing.Point(336, 175);
             this.lblTempoVidaProcessoExecucao.Name = "lblTempoVidaProcessoExecucao";
             this.lblTempoVidaProcessoExecucao.Size = new System.Drawing.Size(60, 13);
             this.lblTempoVidaProcessoExecucao.TabIndex = 15;
@@ -148,6 +156,7 @@
             // 
             // txtTempoVidaProcessoAdd
             // 
+            this.txtTempoVidaProcessoAdd.Enabled = false;
             this.txtTempoVidaProcessoAdd.Location = new System.Drawing.Point(252, 130);
             this.txtTempoVidaProcessoAdd.Name = "txtTempoVidaProcessoAdd";
             this.txtTempoVidaProcessoAdd.Size = new System.Drawing.Size(100, 20);
@@ -184,6 +193,7 @@
             // 
             // btnAdd
             // 
+            this.btnAdd.Enabled = false;
             this.btnAdd.Location = new System.Drawing.Point(373, 113);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(65, 36);
@@ -203,8 +213,53 @@
             this.dgProcessos.DataSource = this.processoBindingSource;
             this.dgProcessos.Location = new System.Drawing.Point(12, 211);
             this.dgProcessos.Name = "dgProcessos";
-            this.dgProcessos.Size = new System.Drawing.Size(340, 138);
+            this.dgProcessos.Size = new System.Drawing.Size(340, 174);
             this.dgProcessos.TabIndex = 18;
+            // 
+            // TimerEscalonador
+            // 
+            this.TimerEscalonador.Interval = 1000;
+            this.TimerEscalonador.Tick += new System.EventHandler(this.TimerEscalonador_Tick);
+            // 
+            // TimerCronometro
+            // 
+            this.TimerCronometro.Interval = 1000;
+            this.TimerCronometro.Tick += new System.EventHandler(this.TimerCronometro_Tick);
+            // 
+            // lblCronometro
+            // 
+            this.lblCronometro.Location = new System.Drawing.Point(336, 84);
+            this.lblCronometro.Name = "lblCronometro";
+            this.lblCronometro.Size = new System.Drawing.Size(60, 13);
+            this.lblCronometro.TabIndex = 19;
+            this.lblCronometro.Text = "00:00:00";
+            // 
+            // lblTtempoTotal
+            // 
+            this.lblTtempoTotal.AutoSize = true;
+            this.lblTtempoTotal.Location = new System.Drawing.Point(249, 84);
+            this.lblTtempoTotal.Name = "lblTtempoTotal";
+            this.lblTtempoTotal.Size = new System.Drawing.Size(67, 13);
+            this.lblTtempoTotal.TabIndex = 20;
+            this.lblTtempoTotal.Text = "Tempo Total";
+            // 
+            // lblExecutando
+            // 
+            this.lblExecutando.AutoSize = true;
+            this.lblExecutando.Location = new System.Drawing.Point(12, 175);
+            this.lblExecutando.Name = "lblExecutando";
+            this.lblExecutando.Size = new System.Drawing.Size(67, 13);
+            this.lblExecutando.TabIndex = 21;
+            this.lblExecutando.Text = "Executando:";
+            // 
+            // lblTempoVida
+            // 
+            this.lblTempoVida.AutoSize = true;
+            this.lblTempoVida.Location = new System.Drawing.Point(249, 175);
+            this.lblTempoVida.Name = "lblTempoVida";
+            this.lblTempoVida.Size = new System.Drawing.Size(81, 13);
+            this.lblTempoVida.TabIndex = 22;
+            this.lblTempoVida.Text = "Tempo de vida:";
             // 
             // nomeDataGridViewTextBoxColumn
             // 
@@ -228,15 +283,15 @@
             // 
             this.processoBindingSource.DataSource = typeof(Feevale.SO.Escalonador.Processo);
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // App
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(450, 361);
+            this.ClientSize = new System.Drawing.Size(450, 397);
+            this.Controls.Add(this.lblTempoVida);
+            this.Controls.Add(this.lblExecutando);
+            this.Controls.Add(this.lblTtempoTotal);
+            this.Controls.Add(this.lblCronometro);
             this.Controls.Add(this.dgProcessos);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.lblTitulo);
@@ -286,7 +341,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn tempoVidaDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn tipoDataGridViewTextBoxColumn;
         private System.Windows.Forms.BindingSource processoBindingSource;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer TimerEscalonador;
+        private System.Windows.Forms.Timer TimerCronometro;
+        private System.Windows.Forms.Label lblCronometro;
+        private System.Windows.Forms.Label lblTtempoTotal;
+        private System.Windows.Forms.Label lblExecutando;
+        private System.Windows.Forms.Label lblTempoVida;
     }
 }
 

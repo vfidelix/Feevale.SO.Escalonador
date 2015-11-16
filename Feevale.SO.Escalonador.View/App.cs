@@ -10,12 +10,9 @@ namespace Feevale.SO.Escalonador
 {
     public partial class App : Form
     {
-        private Thread timerProcessamento = null;
-        private Thread roundRobin = null;
-        private Thread atualizaTelathread = null;
         private Processo Executando { get; set; }
         private List<Processo> Processos { get; set; }
-        
+        private TimeSpan Cronomotro { get; set; }
         public TimeSpan Quantum { get; private set; }
         public int ProcessosPorMinuto { get; private set; }
 
@@ -24,16 +21,15 @@ namespace Feevale.SO.Escalonador
             Processos = new List<Processo>();
             InitializeComponent();
             IniciarComboboxTipoProcess();
-
-            Processos.AddRange(new List<Processo>
-            {
-                new Processo { Nome = "teste1", TempoVida = new TimeSpan(0,0,0,2,0), Tipo = Processo.ProcessoTipo.BOUND},
-                new Processo { Nome = "teste2", TempoVida = new TimeSpan(0,0,0,3,0), Tipo = Processo.ProcessoTipo.BOUND},
-                new Processo { Nome = "teste3", TempoVida = new TimeSpan(0,0,0,4,0), Tipo = Processo.ProcessoTipo.BOUND},
-                new Processo { Nome = "teste4", TempoVida = new TimeSpan(0,0,0,3,0), Tipo = Processo.ProcessoTipo.BOUND},
-                new Processo { Nome = "teste5", TempoVida = new TimeSpan(0,0,0,1,0), Tipo = Processo.ProcessoTipo.BOUND},
-            });
-            atualizarTela();
+            //Processos.AddRange(new List<Processo>
+            //{
+            //    new Processo { Nome = "teste1", TempoVida = new TimeSpan(0,0,0,2,0), Tipo = Processo.ProcessoTipo.BOUND},
+            //    new Processo { Nome = "teste2", TempoVida = new TimeSpan(0,0,0,3,0), Tipo = Processo.ProcessoTipo.BOUND},
+            //    new Processo { Nome = "teste3", TempoVida = new TimeSpan(0,0,0,4,0), Tipo = Processo.ProcessoTipo.BOUND},
+            //    new Processo { Nome = "teste4", TempoVida = new TimeSpan(0,0,0,3,0), Tipo = Processo.ProcessoTipo.BOUND},
+            //    new Processo { Nome = "teste5", TempoVida = new TimeSpan(0,0,0,1,0), Tipo = Processo.ProcessoTipo.BOUND},
+            //});
+            //atualizarTela();
         }
 
         public void IniciarComboboxTipoProcess()
@@ -42,10 +38,14 @@ namespace Feevale.SO.Escalonador
             cbTipoProcessoAdd.Items.AddRange(listEnum.Select(x => x.ToString()).ToArray());
         }
 
-        
-
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            if((Processos.Count() + 1) > ProcessosPorMinuto)
+            {
+                MessageBox.Show(string.Format("Você não pode adicionar mais que {0} processos", ProcessosPorMinuto));
+                return;
+            }
+
             TimeSpan ts;
             TimeSpan.TryParse(this.txtTempoVidaProcessoAdd.Text, out ts);
 
@@ -70,7 +70,6 @@ namespace Feevale.SO.Escalonador
         }
 
         private void btIniciar_Click(object sender, EventArgs e)
-
         {
             int procPorMin;
             int.TryParse(txtProcessoPorMinuto.Text, out procPorMin);
@@ -80,69 +79,62 @@ namespace Feevale.SO.Escalonador
             TimeSpan.TryParse(txtQuantum.Text, out ts);
             Quantum = ts;
 
-            //if (atualizaTelathread == null)
-            //{
-            //    atualizaTelathread = new Thread(new ThreadStart(atualizaTelaThread));
-            //    atualizaTelathread.Start();
-            //}
 
-            if (roundRobin == null)
-            {
-                roundRobin = new Thread(new ThreadStart(executeRoundRodin));
-                roundRobin.IsBackground = true;
-                roundRobin.Start();
-            }
+            TimerEscalonador.Enabled = true;
+            TimerEscalonador.Interval = (int)Quantum.TotalMilliseconds;
+            TimerCronometro.Enabled = true;
         }
-
-        public void executeRoundRodin()
-        {
-            while (true)
-            {
-                ProximoProcesso();
-
-                Invoke(new ExecutingRoundRobinDelegate(Executar));
-            }
-        }
-
-        public void atualizaTelaThread()
-        {
-            while (true)
-            {
-                Invoke(new AtualizaTelaDelegate(atualizarTela));
-                Thread.Sleep(200);
-            }
-        }
-
-        public void CountTime()
-        {
-            TimeSpan ts = new TimeSpan(0, 0, 0, 0);
-            while (true)
-            {
-                ts = ts.Add(new TimeSpan(0, 0, 1));
-                Invoke(new UpdateTimeDelegate(updateCurrentTime), string.Format("{0}:{1}:{2}:{3}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds));
-                Thread.Sleep(1000);
-            }
-
-            
-        }
-
-        private void updateCurrentTime(string text)
-        {
-            lblTempoVidaProcessoExecucao.Text = text;
-        }
-
-
-        public delegate void UpdateTimeDelegate(string text);
-        public delegate void ExecutingRoundRobinDelegate();
-        public delegate void AtualizaTelaDelegate();
+        
         private void btParar_Click(object sender, EventArgs e)
         {
-            roundRobin.Join();
+            TimerEscalonador.Enabled = false;
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void TimerEscalonador_Tick(object sender, EventArgs e)
         {
+            if (!Processos.Any())
+            {
+                TimerEscalonador.Enabled = false;
+                TimerCronometro.Enabled = false;
+            }
 
+            ProximoProcesso();
+        }
+
+        private void TimerCronometro_Tick(object sender, EventArgs e)
+        {
+            if (Executando == null)
+                ProximoProcesso();
+
+            Cronomotro = Cronomotro.Add(new TimeSpan(0, 0, 1));
+            lblCronometro.Text = Cronomotro.ToString();
+            lblTempoVidaProcessoExecucao.Text = Executando != null ? Executando.TempoVida.ToString() : "00:00:00";
+            lblProcessoEmExecucao.Text = Executando.Nome;
+            Executar();
+            atualizarTela();
+        }
+
+        private void txtProcessoPorMinuto_TextChanged(object sender, EventArgs e)
+        {
+            
+            int qnt;
+            var parse = int.TryParse(txtProcessoPorMinuto.Text, out qnt);
+            ProcessosPorMinuto = parse ? qnt : ProcessosPorMinuto;
+            if (string.IsNullOrEmpty(txtProcessoPorMinuto.Text))
+            {
+                cbTipoProcessoAdd.Enabled = false;
+                txtNomeProcessoAdd.Enabled = false;
+                txtTempoVidaProcessoAdd.Enabled = false;
+                btnAdd.Enabled = false;
+            }
+            else if (parse && !Processos.Any())
+            {
+                cbTipoProcessoAdd.Enabled = true;
+                txtNomeProcessoAdd.Enabled = true;
+                txtTempoVidaProcessoAdd.Enabled = true;
+                btnAdd.Enabled = true;  
+            }
+            
         }
     }
 }
